@@ -1,15 +1,17 @@
 package main
 
 import (
-    "github.com/gin-gonic/gin"
-    "acetore/controller"
-    "net/http"
+	"acetore/controller"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-    gin.SetMode(gin.ReleaseMode)
-    router := gin.Default()
-    router.POST("/", controller.Receive)
-    router.StaticFS("/file", http.Dir("public"))
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.Default()
+	router.POST("/", controller.Receive)
+	router.GET("/verify/:token", controller.Verify)
+	router.StaticFS("/file", http.Dir("public"))
 	_ = router.Run(":5000")
 }

@@ -10,8 +10,7 @@ import (
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
-	router.POST("/", controller.Receive)
-	router.GET("/verify/:token", controller.Verify)
+	router.POST("/acetore", controller.Receive)
 	router.StaticFS("/file", http.Dir("public"))
 	_ = router.Run(":5000")
 }

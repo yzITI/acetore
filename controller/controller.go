@@ -35,16 +35,24 @@ func CopyFile(src string, dest string) error {
 	return nil
 }
 
+// Receive ...
 func Receive(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
 		c.String(400, fmt.Sprintf("file err : %s", err.Error()))
 		return
 	}
+	tokens := c.Request.Header.Get("token")
+	fmt.Println(tokens)
+	v := utils.Verify(tokens, 864000)
+	if v == nil {
+		c.String(403, fmt.Sprintf("Auth failed"))
+		return
+	}
 	filename := header.Filename
 	filepath := "tmp/" + filename
 	// if the file doesn't support resume
-	if header.Header.Get("Accept-Ranges") != "bytes" {
+	if c.Request.Header.Get("Accept-Ranges") != "bytes" {
 		// store in tmp
 		out, err := os.Create(filepath)
 		if err != nil {
@@ -64,19 +72,9 @@ func Receive(c *gin.Context) {
 			c.String(500, fmt.Sprintf("Internal Server Error : %s", err.Error()))
 			return
 		}
+		utils.Log("uploaded file " + filename + " at " + v[0] + " through " + v[1])
 		c.JSON(200, gin.H{"hash": hash})
 	} else {
 
-	}
-}
-
-// Verify ...
-func Verify(c *gin.Context) {
-	token := c.Param("token")
-	v := utils.Verify(token, 864000)
-	if v != nil {
-		c.String(200, fmt.Sprintf("passed verification"))
-	} else {
-		c.String(403, fmt.Sprintf("Auth failed"))
 	}
 }

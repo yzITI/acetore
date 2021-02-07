@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-
+	"strings"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,13 +35,24 @@ func CopyFile(src string, dest string) error {
 	return nil
 }
 
-// Receive ...
-func Receive(c *gin.Context) {
+func VerifyUpload(c *gin.Context) {
+	hash := c.Param("hash")
+	info, err := os.Stat(hash)
+    if os.IsNotExist(err) {
+        c.String(200, fmt.Sprintf("File does not exist"))
+    } else {
+    	c.String(201, fmt.Sprintf("File exists"))
+    }
+}
+
+// Upload ...
+func Upload(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
-		c.String(400, fmt.Sprintf("file err : %s", err.Error()))
+		c.String(400, fmt.Sprintf("File err : %s", err.Error()))
 		return
 	}
+	h := c.Param("hash")
 	tokens := c.Request.Header.Get("token")
 	fmt.Println(tokens)
 	v := utils.Verify(tokens, 864000)
@@ -66,6 +77,9 @@ func Receive(c *gin.Context) {
 			return
 		}
 		hash, err := utils.HashFileMd5(filepath)
+		if (strings.Compare(h, hash) != 0) {
+			c.String(500, fmt.Sprintf("File uploaded Error: incorrect file content."))
+		}
 		// copy to public
 		err = CopyFile(filepath, "public/"+hash)
 		if err != nil {
@@ -78,3 +92,4 @@ func Receive(c *gin.Context) {
 
 	}
 }
+

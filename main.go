@@ -10,7 +10,8 @@ import (
 func main() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
-	router.POST("/acetore", controller.Receive)
+	router.GET("/upload/:hash", controller.verifyUpload)
+	router.POST("/upload", controller.Upload)
 	router.StaticFS("/file", http.Dir("public"))
 	_ = router.Run(":5000")
 }

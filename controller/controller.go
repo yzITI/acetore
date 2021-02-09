@@ -37,7 +37,7 @@ func CopyFile(src string, dest string) error {
 
 func VerifyUpload(c *gin.Context) {
 	hash := c.Param("hash")
-	info, err := os.Stat(hash)
+	_, err := os.Stat(hash)
     if os.IsNotExist(err) {
         c.String(200, fmt.Sprintf("File does not exist"))
     } else {
